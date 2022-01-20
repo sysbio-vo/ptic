@@ -1,0 +1,2 @@
+# ptic
+PTIC method
