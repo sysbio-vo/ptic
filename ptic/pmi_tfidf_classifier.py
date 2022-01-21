@@ -5,19 +5,19 @@ from tqdm import tqdm
 from collections import defaultdict
 
 nlp = spacy.load("en_core_sci_lg", disable=['ner', 'parser'])
-path = "../data/"
 
 def tokenize(string):
     doc = nlp.make_doc(string)
     words = [token.text.lower() for token in doc if token.is_alpha and not token.is_stop and len(token.text) > 1 ]
     return words
 
-def tokenization(train_data):
+def tokenization(train_data, var_name):
     tokenized_texts = []
     #print("Tokenization....")
     for _, row in train_data.iterrows():
-        text = str(row['Abstract'])
+        #text = str(row['Abstract'])
         #text = str(row['Title']) + ' ' + str(row['Abstract'])
+        text = str(row[var_name])
         words = tokenize(text)
         tokenized_texts.append(words)
     return tokenized_texts
