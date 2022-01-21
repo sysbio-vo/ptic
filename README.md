@@ -8,6 +8,6 @@ PTIC tool for texts classification, uses following statistical model:
 ## Installation
 
 ```bash
-pip install --requirement xxx
+pip install --requirement https://raw.githubusercontent.com/sysbio-vo/ptic/main/requirements.txt
 pip install ptic
 ```
