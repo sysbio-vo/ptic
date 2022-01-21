@@ -1,2 +1,3 @@
 dist/
+ptic.egg-info/
 *.pyc
