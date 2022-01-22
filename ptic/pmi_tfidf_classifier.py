@@ -48,27 +48,43 @@ def get_doc_tfidf(words, word2text_count, N):
             word2tfidf[word] = 1
     return word2tfidf
 
+def get_class_stat(targets):
+    target2count = defaultdict(int)
+    for target in targets:
+        target2count[target]+=1
+    return target2count;
+
 def create_pmi_dict(tokenized_texts, targets, min_count=5):
     #print("PMI dictionary ....")
     np.seterr(divide = 'ignore')
+    
+    ts = set(targets)
+    
+    target2count = get_class_stat(targets)
+    
+    ttc = sum(target2count.values())
+
+    target2percent = {t:target2count[t]/ttc for t in ts}
+
     # words count
-    d = {0:defaultdict(int), 1:defaultdict(int), 'tot':defaultdict(int)}
+    d = {'tot':defaultdict(int)}
+    d.update({t:defaultdict(int) for t in ts})
+    Dictionary = set()
     for idx, words in enumerate(tokenized_texts):
         target = targets[idx]
         for w in words:
+            d['tot'][w] += 1
+            Dictionary.add(w)
             d[ target ][w] += 1
-    Dictionary = set(list(d[0].keys()) + list(d[1].keys()))
-    d['tot'] = {w:d[0][w] + d[1][w] for w in Dictionary}
     # pmi calculation
-    N_0 = sum(d[0].values())
-    N_1 = sum(d[1].values())
-    d[0] = {w: -np.log((v/N_0 + 10**(-15)) / (0.5 * d['tot'][w]/(N_0 + N_1))) / np.log(v/N_0 + 10**(-15))
-            for w, v in d[0].items() if d['tot'][w] > min_count}
-    d[1] = {w: -np.log((v/N_1+ 10**(-15)) / (0.5 * d['tot'][w]/(N_0 + N_1))) / np.log(v/N_1 + 10**(-15))
-            for w, v in d[1].items() if d['tot'][w] > min_count}
+    for t in ts:
+      N_0 = sum(d[t].values())
+      N = sum(d['tot'].values())
+      d[t] = {w: -np.log((v/N + 10**(-15)) / (target2percent[t] * d['tot'][w]/(N))) / np.log(v/N + 10**(-15))
+            for w, v in d[t].items() if d['tot'][w] > min_count}
+      d[t]=dict(sorted(d[t].items(),key= lambda x:x[1], reverse=True))
     del d['tot']
     return d
-
 
 def calc_collinearity(word, words_dict, n=10):
     new_word_emb = nlp(word).vector
