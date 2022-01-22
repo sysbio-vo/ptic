@@ -4,6 +4,8 @@ import pandas as pd
 
 path = "../datasets/"
 
+# Data is taken from here
+# https://www.kaggle.com/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews
 data_raw = pd.read_csv(path + 'IMDB_Dataset.csv')
 indices = np.random.permutation(data_raw.index)
 data = data_raw.loc[indices]

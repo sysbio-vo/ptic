@@ -121,8 +121,8 @@ def classify_pmi_based(words_pmis, word2text_count, tokenized_test_texts, N):
     results = np.zeros(len(tokenized_test_texts))
     for idx, words in enumerate(tokenized_test_texts):
         word2tfidf = get_doc_tfidf(words, word2text_count, N)
-        # PMI - determines significance of the word for the class
-        # TFIDF - determines significance of the word for the document
+        #PMI - determines significance of the word for the class
+        #TFIDF - determines significance of the word for the document
         #tot_pmi = create_tot_pmitfidf(words, words_pmis, word2tfidf)
         tot_pmi = {}
         pmi = {}
