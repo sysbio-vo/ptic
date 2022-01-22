@@ -123,12 +123,11 @@ def classify_pmi_based(words_pmis, word2text_count, tokenized_test_texts, N):
         word2tfidf = get_doc_tfidf(words, word2text_count, N)
         # PMI - determines significance of the word for the class
         # TFIDF - determines significance of the word for the document
-        #tot_pmi0, tot_pmi1 = create_tot_pmitfidf(words, words_pmis, word2tfidf)
-        tot_pmi0 = [ words_pmis[0][w] * word2tfidf[w] for w in set(words) if w in words_pmis[0] ]
-        tot_pmi1 = [ words_pmis[1][w] * word2tfidf[w] for w in set(words) if w in words_pmis[1] ]
-        pmi0 = np.sum(tot_pmi0)
-        pmi1 = np.sum(tot_pmi1)
-        diff = pmi1 - pmi0
-        if diff > 0.001:
-            results[idx] = 1
+        #tot_pmi = create_tot_pmitfidf(words, words_pmis, word2tfidf)
+        tot_pmi = {}
+        pmi = {}
+        for k in words_pmis:
+            tot_pmi[k] = [ words_pmis[k][w] * word2tfidf[w] for w in set(words) if w in words_pmis[k] ]
+            pmi[k] = np.sum(tot_pmi[k])
+        results[idx] = np.argmax(list(pmi.values()))
     return results
