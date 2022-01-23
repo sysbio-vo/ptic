@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-#import spacy
 from nltk.tokenize import word_tokenize
 from tqdm import tqdm
 from collections import defaultdict
