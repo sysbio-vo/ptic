@@ -4,6 +4,7 @@ import string
 from nltk.tokenize import word_tokenize
 from collections import defaultdict
 nltk.download('stopwords')
+nltk.download('punkt')
 
 stop_words = set(nltk.corpus.stopwords.words('english') + list(string.punctuation))
 
