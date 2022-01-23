@@ -59,23 +59,49 @@ def create_pmi_dict(tokenized_texts, targets, min_count=5):
     Dictionary = set()
     for idx, words in enumerate(tokenized_texts):
         target = targets[idx]
-        for w in set(words):
+        for w in words:
             d['tot'][w] += 1
             Dictionary.add(w)
             d[ target ][w] += 1
-            
     # pmi calculation
     for t in ts:
-        N_0 = sum(d[t].values())
-        N = sum(d['tot'].values())
-        d[t] =\
-        {
-            w: -np.log((v/N + 10**(-15)) / (target2percent[t] * d['tot'][w]/(N))) / np.log(v/N + 10**(-15))
-            for w, v in d[t].items() if d['tot'][w] > min_count
-        }
-        d[t] = dict(sorted(d[t].items(),key= lambda x:x[1], reverse=True))
+      N_0 = sum(d[t].values())
+      N = sum(d['tot'].values())
+      d[t] = {w: -np.log((v/N + 10**(-15)) / (target2percent[t] * d['tot'][w]/(N))) / np.log(v/N + 10**(-15))
+            for w, v in d[t].items() if d['tot'][w] > min_count}
+      d[t]=dict(sorted(d[t].items(),key= lambda x:x[1], reverse=True))
     del d['tot']
     return d
+
+def calc_collinearity(word, words_dict, n=10):
+    new_word_emb = nlp(word).vector
+    pmi_new = 0
+    max_pmis_words = sorted(list(words_dict.items()), key=lambda x: x[1], reverse=True)[:n]
+    for w, pmi in max_pmis_words:
+        w_emb = nlp(w).vector
+        cos_similarity = \
+        np.dot(w_emb, new_word_emb)/(np.linalg.norm(w_emb) * np.linalg.norm(new_word_emb) + 1e-12)
+        pmi_new += cos_similarity * pmi
+    return pmi_new / n
+
+
+def create_tot_pmitfidf(words, words_pmis, word2tfidf):
+    tot_pmitfidf0 = []
+    tot_pmitfidf1 = []
+    for word in words:
+        if word in words_pmis[0]:
+            tot_pmitfidf0.append( words_pmis[0][word] * word2tfidf[word] )
+        else:
+            pmi0idf = pmiidf_net.forward( nlp(word).vector )
+            #pmi0 = calc_collinearity(word, words_pmis[0])
+            tot_pmitfidf0.append( pmi0 )
+        if word in words_pmis[1]:
+            tot_pmitfidf1.append( words_pmis[1][word] * word2tfidf[word] )
+        else:
+            pmi1 = calc_collinearity(word, words_pmis[1])
+            tot_pmitfidf1.append( pmi1 )
+
+    return tot_pmitfidf0, tot_pmitfidf1
 
 
 def classify_pmi_based(words_pmis, word2text_count, tokenized_test_texts, N):
@@ -83,7 +109,8 @@ def classify_pmi_based(words_pmis, word2text_count, tokenized_test_texts, N):
     for idx, words in enumerate(tokenized_test_texts):
         word2tfidf = get_doc_tfidf(words, word2text_count, N)
         #PMI - determines significance of the word for the class
-        #TF-IDF - determines significance of the word for the document
+        #TFIDF - determines significance of the word for the document
+        #tot_pmi = create_tot_pmitfidf(words, words_pmis, word2tfidf)
         tot_pmi = {}
         pmi = {}
         for k in words_pmis:
