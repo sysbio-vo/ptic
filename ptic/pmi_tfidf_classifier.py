@@ -4,11 +4,8 @@ from nltk.tokenize import word_tokenize
 from tqdm import tqdm
 from collections import defaultdict
 
-#nlp = spacy.load("en_core_sci_sm", disable=['ner'])
 
 def tokenize(string):
-#    doc = nlp(string)
-#    words = [token.text.lower() for token in doc]
     words = word_tokenize(string)
     return words
 
