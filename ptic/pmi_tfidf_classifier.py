@@ -1,35 +1,28 @@
-import pandas as pd
 import numpy as np
-import spacy
-from tqdm import tqdm
+import nltk
+import string
+from nltk.tokenize import word_tokenize
 from collections import defaultdict
+nltk.download('stopwords')
 
-nlp = spacy.load("en_core_sci_lg", disable=['ner', 'parser'])
+stop_words = set(nltk.corpus.stopwords.words('english') + list(string.punctuation))
 
-def tokenize(string):
-    doc = nlp.make_doc(string)
-    words = [token.text.lower() for token in doc if token.is_alpha and not token.is_stop and len(token.text) > 1 ]
-    return words
+def tokenize(s):
+    return [i for i in word_tokenize(s.lower()) if i not in stop_words]
 
 def tokenization(train_data, var_name):
     tokenized_texts = []
-    #print("Tokenization....")
     for _, row in train_data.iterrows():
-        #text = str(row['Abstract'])
-        #text = str(row['Title']) + ' ' + str(row['Abstract'])
         text = str(row[var_name])
         words = tokenize(text)
         tokenized_texts.append(words)
     return tokenized_texts
 
-# TFIDF (Term frequency and inverse document frequency)
 def get_word_stat(tokenized_texts):
-    '''Words counts in documents
-    finds in how many documents this word
-    is present
     '''
-    texts_number = len(tokenized_texts)
-    #print("Word Stat....")
+    Input: List[list[str]] - tokenized texts
+    Return: Dict[word] - number of documents with `word`
+    '''
     word2text_count = defaultdict(int)
     for text in tokenized_texts:
         uniquewords = set(text)
@@ -55,17 +48,11 @@ def get_class_stat(targets):
     return target2count;
 
 def create_pmi_dict(tokenized_texts, targets, min_count=5):
-    #print("PMI dictionary ....")
     np.seterr(divide = 'ignore')
-    
     ts = set(targets)
-    
     target2count = get_class_stat(targets)
-    
     ttc = sum(target2count.values())
-
     target2percent = {t:target2count[t]/ttc for t in ts}
-
     # words count
     d = {'tot':defaultdict(int)}
     d.update({t:defaultdict(int) for t in ts})
