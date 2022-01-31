@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn import metrics
 
+np.random.seed(42)
 path = "../datasets/"
 
 # Data is taken from here

@@ -46,7 +46,7 @@ def get_class_stat(targets):
     target2count = defaultdict(int)
     for target in targets:
         target2count[target]+=1
-    return target2count;
+    return target2count
 
 def create_pmi_dict(tokenized_texts, targets, min_count=5):
     np.seterr(divide = 'ignore')
@@ -57,18 +57,16 @@ def create_pmi_dict(tokenized_texts, targets, min_count=5):
     # words count
     d = {'tot':defaultdict(int)}
     d.update({t:defaultdict(int) for t in ts})
-    Dictionary = set()
     for idx, words in enumerate(tokenized_texts):
         target = targets[idx]
         for w in words:
             d['tot'][w] += 1
-            Dictionary.add(w)
-            d[ target ][w] += 1
+            d[target][w] += 1
     # pmi calculation
     for t in ts:
-      N_0 = sum(d[t].values())
+      N_t = sum(d[t].values())
       N = sum(d['tot'].values())
-      d[t] = {w: -np.log((v/N + 10**(-15)) / (target2percent[t] * d['tot'][w]/(N))) / np.log(v/N + 10**(-15))
+      d[t] = {w: -np.log((v/N_t + 10**(-15)) / (target2percent[t] * d['tot'][w]/(N))) / np.log(v/N_t + 10**(-15))
             for w, v in d[t].items() if d['tot'][w] > min_count}
       d[t]=dict(sorted(d[t].items(),key= lambda x:x[1], reverse=True))
     del d['tot']

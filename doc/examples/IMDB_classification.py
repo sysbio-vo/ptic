@@ -2,6 +2,7 @@ from ptic import pmi_tfidf_classifier as ptah
 import numpy as np
 import pandas as pd
 
+np.random.seed(42)
 path = "../datasets/"
 
 # Data is taken from here
