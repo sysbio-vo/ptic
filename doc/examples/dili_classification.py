@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn import metrics
 import torch
-from ptic import neuro_ptic
+from ptic import logit_ptic
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -37,15 +37,16 @@ for wpid in words_pmis:
 word2id = {w:id for id, w in enumerate(words)}
 lpw = len(words)
 
-X = neuro_ptic.get_pmi_vectors(words_pmis, word2text_count, word2id, tokenized_texts, N, lpw, nl)
-X_test = neuro_ptic.get_pmi_vectors(words_pmis, word2text_count, word2id, tokenized_test_texts, N, lpw, nl)
+X = logit_ptic.get_pmi_vectors(words_pmis, word2text_count, tokenized_texts, N)
+X_test = logit_ptic.get_pmi_vectors(words_pmis, word2text_count, tokenized_test_texts, N)
 Y = torch.from_numpy(targets_train)
 Y_test = torch.from_numpy(targets_test)
-dili_net = neuro_ptic.train(X=X, Y=Y, X_test=X_test, Y_test=Y_test, wc = lpw, nl = nl, batch_size=100, epochs=300)
+ptic_logit = logit_ptic.train(X=X, Y=Y, X_test=X_test, Y_test=Y_test, wc = lpw, nl = nl, batch_size=100, epochs=300)
 
-results = ptah.classify_pmi_based(words_pmis, word2text_count, tokenized_test_texts, N)
+results = ptah.classify_pmi_based(words_pmis, word2text_count, tokenized_test_texts, N) 
 
-results_net = neuro_ptic.get_dili_net_results(dili_net, words_pmis, word2id, word2text_count, tokenized_test_texts, N, lpw, nl)
+results_net = logit_ptic.get_ptic_logit_results(ptic_logit, words_pmis, word2text_count, tokenized_test_texts, N)
+
 
 print('Results of the conventional ptic classifier:')
 print(metrics.classification_report(results, targets_test, digits=3, target_names=labels_names))
